@@ -1,0 +1,13 @@
+# 参考: https://EditorConfig.org
+root = true
+
+[*]
+end_of_line = lf
+
+[*.go]
+indent_size = 4
+indent_style = space
+
+# Tab indentation (no size specified)
+[Makefile]
+indent_style = tab
