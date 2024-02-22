@@ -81,6 +81,7 @@ erDiagram
     RESTAURANT ||--o{ ITEM : "持つ"
     RESTAURANT ||--o{ TABLE : "持つ"
     RESTAURANT ||--o{ CATEGORY : "持つ"
+    RESTAURANT ||--|{ SUBSCRIPTION : "持つ"
     ORDER ||--|{ ORDER_ITEM : "含む"
     CATEGORY ||--o{ ITEM : "含む"
     ITEM ||--|{ ORDER_ITEM : "含まれている"
