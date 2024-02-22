@@ -6,21 +6,24 @@ erDiagram
     ADMIN {
         int id PK "管理者のUUID"
         string username "管理者のusername"
-        string password "管理者のpassword hash"
+        string password_hash "管理者のpasswordハッシュ"
     }
 
     USER {
         int id PK "店舗ユーザのUUID"
-        string name "店舗側のユーザの名称"
         string username "店舗userのusername"
-        string password "店舗userのpassword"
+        string password_hash "店舗userのpasswordハッシュ"
     }
 
     RESTAURANT {
         int id PK "店舗のUUID"
-        string user_id FK "店舗ユーザのUUID"
         string name "店舗の名称"
-        bool status "店舗のサブスクリプション状態（払われているかどうか）"
+    }
+
+    SUBSCRIPTION {
+        int id PK "サブスクリプションのUUID"
+        int restaurent_id FK "店舗のUUID"
+        string paid_year_month "〇月分の支払い e.g. `2024-02`"
     }
 
     TABLE {
@@ -51,8 +54,13 @@ erDiagram
     ORDER {
         int id PK "注文のUUID"
         int restaurent_id FK "店舗のUUID"
-        int table_id FK "CUSTOMERのUUID"
-        int item_id FK "料理のUUID"
+        int customer_id FK "CUSTOMERのUUID"
+        int quantity "注文アイテムの個数"
+    }
+
+    ORDER_ITEM {
+        int order_id PK "注文のUUID"
+        int item_id FK "Identifier of the ordered item"
         int quantity "料理の個数"
         bool status "注文の状態(届いているかどうか)"
         json options "料理アイテムのオプション"
@@ -66,14 +74,15 @@ erDiagram
     }
 
     ADMIN ||--o{ USER : "作成する"
-    USER ||--o{ RESTAURANT : "持つ"
+    USER }|--o{ RESTAURANT : "持つ"
     CUSTOMER ||--o{ ORDER : "作成する"
     RESTAURANT ||--o{ TABLE : "持つ"
     RESTAURANT ||--o{ ORDER : "受け取る"
     RESTAURANT ||--o{ ITEM : "持つ"
     RESTAURANT ||--o{ TABLE : "持つ"
     RESTAURANT ||--o{ CATEGORY : "持つ"
+    ORDER ||--|{ ORDER_ITEM : "含む"
     CATEGORY ||--o{ ITEM : "含む"
-    ITEM ||--|{ ORDER : "含まれている"
+    ITEM ||--|{ ORDER_ITEM : "含まれている"
     TABLE ||--o{ CUSTOMER: "持つ"
 ```
