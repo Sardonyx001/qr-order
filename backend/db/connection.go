@@ -17,8 +17,6 @@ func Init(cfg *config.Config) *gorm.DB {
 		cfg.DB.Port,
 	)
 
-	fmt.Println(dataSourceName)
-
 	db, err := gorm.Open(postgres.Open(dataSourceName), &gorm.Config{})
 	if err != nil {
 		panic(err.Error())
