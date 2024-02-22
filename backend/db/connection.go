@@ -2,7 +2,9 @@ package db
 
 import (
 	"backend/config"
+	"backend/models"
 	"fmt"
+	"log"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -20,6 +22,20 @@ func Init(cfg *config.Config) *gorm.DB {
 	db, err := gorm.Open(postgres.Open(dataSourceName), &gorm.Config{})
 	if err != nil {
 		panic(err.Error())
+	}
+
+	if err = db.AutoMigrate(
+		&models.Admin{},
+		&models.User{},
+		&models.Restaurant{},
+		&models.Item{},
+		&models.Category{},
+		&models.Table{},
+		&models.Customer{},
+		&models.Order{},
+		&models.OrderItem{},
+	); err != nil {
+		log.Fatal("Could not migrate: ", err)
 	}
 
 	return db
