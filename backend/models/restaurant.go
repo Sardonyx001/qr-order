@@ -2,10 +2,9 @@ package models
 
 type Restaurant struct {
 	UUIDBaseModel
-	UserID     string
-	User       User
-	Items      []Item
-	Orders     []Order
-	Categories []Category
-	Tables     []Table
+	Users      []*User    `json:"users" gorm:"many2many:user_restaurants;"`
+	Items      []Item     `json:"items"`
+	Orders     []Order    `json:"ordes"`
+	Categories []Category `json:"categories"`
+	Tables     []Table    `json:"tables"`
 }
