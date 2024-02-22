@@ -1,6 +1,6 @@
 package models
 
-// User model
+// Admin model
 type Admin struct {
 	UUIDBaseModel
 	Username     string `json:"name" gorm:"unique;not null"`
