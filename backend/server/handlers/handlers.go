@@ -2,23 +2,22 @@ package handlers
 
 import (
 	s "backend/server"
-	"context"
-	"log"
 	"net/http"
-	"time"
 
 	"github.com/labstack/echo/v4"
 )
 
-type HelloHandlers struct {
-	server *s.Server
-}
+type (
+	HelloHandler interface {
+		Hello(c echo.Context) error
+	}
 
-func NewHelloHandlers(server *s.Server) *HelloHandlers {
-	return &HelloHandlers{server: server}
-}
+	helloHandler struct {
+		server *s.Server
+	}
+)
 
-func (p *HelloHandlers) HelloHandler(c echo.Context) error {
+func (h *helloHandler) Hello(c echo.Context) error {
 	resp := map[string]string{
 		"message": "Hello World",
 	}
@@ -26,23 +25,14 @@ func (p *HelloHandlers) HelloHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
-func (p *HelloHandlers) HealthcheckHandler(c echo.Context) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-	defer cancel()
+type Handlers struct {
+	HelloHandler
+	HealthCheckHandler
+}
 
-	db, err := p.server.DB.DB()
-	if err != nil {
-		log.Fatal(err)
+func New(server *s.Server) *Handlers {
+	return &Handlers{
+		HelloHandler:       &helloHandler{server: server},
+		HealthCheckHandler: &healthCheckHandler{server: server},
 	}
-
-	err = db.PingContext(ctx)
-	if err != nil {
-		log.Fatal("Database down: ", err)
-	}
-
-	resp := map[string]string{
-		"message": "database ready",
-	}
-
-	return c.JSON(http.StatusOK, resp)
 }

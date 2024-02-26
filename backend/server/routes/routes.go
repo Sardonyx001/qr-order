@@ -8,13 +8,13 @@ import (
 )
 
 func ConfigureRoutes(server *s.Server) {
-	helloHandler := handlers.NewHelloHandlers(server)
+	handlers := handlers.New(server)
 
 	server.Echo.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: "[${time_rfc3339}] ${status} ${method} ${path} (${remote_ip}) ${latency_human}\n",
 		Output: server.Echo.Logger.Output(),
 	}))
 
-	server.Echo.GET("/hello", helloHandler.HelloHandler)
-	server.Echo.GET("/healthcheck", helloHandler.HealthcheckHandler)
+	server.Echo.GET("/hello", handlers.Hello)
+	server.Echo.GET("/healthcheck", handlers.HealthCheck)
 }
