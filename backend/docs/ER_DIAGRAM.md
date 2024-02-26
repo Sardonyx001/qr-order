@@ -48,14 +48,13 @@ erDiagram
         string text "料理の詳細"
         int price "料理の値段(円単位)"
         json options "料理のオプション(JSON形)"
-        string img "料理の画像(URLもしくはbase64)"
+        string img "料理の画像(URL)"
     }
 
     ORDER {
         int id PK "注文のUUID"
         int restaurent_id FK "店舗のUUID"
         int customer_id FK "CUSTOMERのUUID"
-        int quantity "注文アイテムの個数"
     }
 
     ORDER_ITEM {
