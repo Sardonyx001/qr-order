@@ -11,6 +11,7 @@ type (
 	UserStore interface {
 		Create(user *models.User) (string, error)
 		GetById(id string) (*models.User, error)
+		GetByUsername(username string) (*models.User, error)
 		DeleteById(id string) error
 	}
 
@@ -21,9 +22,8 @@ type (
 
 func (s *userStore) Create(user *models.User) (string, error) {
 	err := s.DB.Create(&user).Error
-
 	if err != nil {
-		log.Error("failed to create user", err)
+		log.Error("failed to create user: ", err)
 		return "", err
 	}
 
@@ -36,7 +36,20 @@ func (s *userStore) GetById(id string) (*models.User, error) {
 	err := s.DB.Where("id = ? ", id).Take(&user).Error
 
 	if err != nil {
-		log.Error("can't find user", err)
+		log.Error("can't find user: ", err)
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (s *userStore) GetByUsername(username string) (*models.User, error) {
+	var user models.User
+
+	err := s.DB.Where("username = ? ", username).First(&user).Error
+
+	if err != nil {
+		log.Error("can't find user ", err)
 		return nil, err
 	}
 
