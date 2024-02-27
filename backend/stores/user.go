@@ -46,7 +46,7 @@ func (s *userStore) GetById(id string) (*models.User, error) {
 func (s *userStore) GetByUsername(username string) (*models.User, error) {
 	var user models.User
 
-	err := s.DB.Where("username = ? ", username).Take(&user).Error
+	err := s.DB.Where("username = ? ", username).First(&user).Error
 
 	if err != nil {
 		log.Error("can't find user ", err)

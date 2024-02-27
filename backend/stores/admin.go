@@ -46,7 +46,7 @@ func (s *adminStore) GetById(id string) (*models.Admin, error) {
 func (s *adminStore) GetByUsername(username string) (*models.Admin, error) {
 	var admin models.Admin
 
-	err := s.DB.Where("username = ? ", username).Take(&admin).Error
+	err := s.DB.Where("username = ? ", username).First(&admin).Error
 
 	if err != nil {
 		log.Error("can't find admin ", err)
