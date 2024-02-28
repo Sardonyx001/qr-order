@@ -33,7 +33,7 @@ func (s *userService) CreateUser(creds *config.BasicAuth) (string, error) {
 	result := s.stores.DB.First(&defaultAdmin)
 
 	if result.Error != nil {
-		return "", result.Error
+		return "", err
 	}
 
 	user := models.User{
