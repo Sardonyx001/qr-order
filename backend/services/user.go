@@ -30,9 +30,7 @@ func (s *userService) CreateUser(creds *config.BasicAuth) (string, error) {
 		return "", err
 	}
 	defaultAdmin := models.Admin{}
-	result := s.stores.DB.First(&defaultAdmin)
-
-	if result.Error != nil {
+	if err = s.stores.Admin.GetDefaultAdmin(&defaultAdmin); err != nil {
 		return "", err
 	}
 
