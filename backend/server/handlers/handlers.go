@@ -3,11 +3,19 @@ package handlers
 import "backend/services"
 
 type Handlers struct {
-	UserHanlder
+	UserHandler
+	AdminHandler
+	AuthHandler
+	RestaurantHandler
 }
 
 func New(s *services.Services) *Handlers {
 	return &Handlers{
-		UserHanlder: &userHandler{s.User},
+		UserHandler:  &userHandler{s.User},
+		AdminHandler: &adminHandler{s.Admin},
+		AuthHandler:  &authHandler{s.Auth},
+		RestaurantHandler: &restaurantHandler{
+			r: s.Restaurant,
+			u: s.User},
 	}
 }
