@@ -1,18 +1,21 @@
 package server
 
 import (
+	"backend/config"
 	"backend/server/handlers"
 	"backend/services"
 	"backend/stores"
 	"net/http"
 
+	"github.com/golang-jwt/jwt/v4"
+	echojwt "github.com/labstack/echo-jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func ConfigureRoutes(server *Server) {
 	stores := stores.New(server.DB)
-	services := services.New(stores)
+	services := services.New(stores, server.Config)
 	handlers := handlers.New(services)
 
 	server.Echo.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
@@ -23,25 +26,38 @@ func ConfigureRoutes(server *Server) {
 	server.Echo.Pre(middleware.RemoveTrailingSlash())
 
 	g := server.Echo.Group("api/v1")
+	jwtConfig := echojwt.Config{
+		NewClaimsFunc: func(c echo.Context) jwt.Claims {
+			return new(config.JwtCustomClaims)
+		},
+		SigningKey: []byte(server.Config.Auth.AccessSecret),
+	}
 
 	// Admin Endpoints
-	// TODO: Configure auth middleware
 	admin := g.Group("/admin")
 	admin.POST("/register", handlers.AdminHandler.CreateAdmin)
+	admin.POST("/login", handlers.AuthHandler.LoginForAdmin)
+
+	admin.Use(echojwt.WithConfig(jwtConfig))
 
 	// User Endpoints
-	// TODO: Configure auth middleware
 	users := g.Group("/users")
 	users.POST("/register", handlers.UserHandler.CreateUser)
-	users.POST("/login", todo)
-	users.POST("/refresh", todo)
+	users.POST("/login", handlers.AuthHandler.LoginForUser)
+
+	users.Use(echojwt.WithConfig(jwtConfig))
 
 	users.GET("/:id", handlers.UserHandler.GetUserById)
 	users.PUT("/:id", handlers.UserHandler.UpdateUserById)
 	users.DELETE("/:id", handlers.UserHandler.DeleteUserById)
 
-	restaurants := g.Group("/restaurants/:restaurant_id")
-	restaurants.GET("", todo)
+	restaurants := g.Group("/restaurants")
+	restaurants.Use(echojwt.WithConfig(jwtConfig))
+
+	restaurants.GET("", handlers.RestaurantHandler.GetRestaurants)
+	restaurants.GET("/:restaurant_id", todo)
+	restaurants.POST("", handlers.RestaurantHandler.CreateRestaurant)
+
 	restaurants.GET("/orders", todo)
 	restaurants.GET("/orders/:order_id", todo)
 	restaurants.POST("/orders/:order_id", todo)
@@ -70,8 +86,9 @@ func ConfigureRoutes(server *Server) {
 	restaurants.DELETE("/tables/:table_id", todo)
 
 	// Customer Endpoints
-	// TODO: Configure auth middleware
 	customers := g.Group("/customers")
+	customers.Use(echojwt.WithConfig(jwtConfig))
+
 	customers.GET("", todo)
 	customers.GET("/:customer_id/orders", todo)
 	customers.POST("/:customer_id/orders", todo)
