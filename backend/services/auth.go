@@ -2,7 +2,6 @@ package services
 
 import (
 	"backend/config"
-	"backend/models"
 	"backend/stores"
 	"time"
 
@@ -13,7 +12,6 @@ import (
 type (
 	AuthService interface {
 		GenerateAccessToken(username string, password string, admin bool) (accessToken string, exp int64, err error)
-		GetUserById(id string) *models.User
 	}
 
 	authService struct {
@@ -48,12 +46,4 @@ func (s *authService) GenerateAccessToken(username string, password string, admi
 	}
 
 	return accessToken, exp, err
-}
-
-func (s *authService) GetUserById(id string) *models.User {
-	user, err := s.User.GetById(id)
-	if err != nil {
-		return nil
-	}
-	return user
 }
