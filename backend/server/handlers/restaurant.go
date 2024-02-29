@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"backend/config"
 	"backend/logger"
 	"backend/models"
 	"backend/services"
@@ -30,7 +29,7 @@ type (
 
 func (h *restaurantHandler) GetRestaurants(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
-	claims := token.Claims.(*config.JwtCustomClaims)
+	claims := token.Claims.(*utils.JwtCustomClaims)
 	user, err := h.u.GetUserById(claims.ID)
 	if err != nil {
 		logger.Error(err.Error())
@@ -53,7 +52,7 @@ func (h *restaurantHandler) GetRestaurantById(c echo.Context) error {
 
 func (h *restaurantHandler) CreateRestaurant(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
-	claims := token.Claims.(*config.JwtCustomClaims)
+	claims := token.Claims.(*utils.JwtCustomClaims)
 	user, err := h.u.GetUserById(claims.ID)
 	if err != nil {
 		return c.JSON(http.StatusForbidden, "Invalid credentials")

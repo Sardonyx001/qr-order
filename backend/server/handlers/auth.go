@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"backend/config"
 	"backend/logger"
 	"backend/services"
+	"backend/utils"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -25,7 +25,7 @@ type (
 )
 
 func (h *authHandler) LoginForUser(c echo.Context) error {
-	userAuth := new(config.BasicAuth)
+	userAuth := new(utils.BasicAuth)
 
 	if err := c.Bind(userAuth); err != nil {
 		return c.JSON(http.StatusBadRequest, "Request doesn't match schema")
@@ -52,7 +52,7 @@ func (h *authHandler) LoginForUser(c echo.Context) error {
 }
 
 func (h *authHandler) LoginForAdmin(c echo.Context) error {
-	userAuth := new(config.BasicAuth)
+	userAuth := new(utils.BasicAuth)
 
 	if err := c.Bind(userAuth); err != nil {
 		return c.JSON(http.StatusBadRequest, "Request doesn't match schema")

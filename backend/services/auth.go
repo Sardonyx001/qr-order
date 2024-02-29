@@ -3,6 +3,7 @@ package services
 import (
 	"backend/config"
 	"backend/stores"
+	"backend/utils"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -22,7 +23,7 @@ type (
 func (s *authService) GenerateAccessToken(id string, admin bool) (accessToken string, exp int64, err error) {
 	expired := time.Now().Add(time.Hour * 72)
 
-	claims := &config.JwtCustomClaims{
+	claims := &utils.JwtCustomClaims{
 		ID:    id,
 		Admin: admin,
 		RegisteredClaims: jwt.RegisteredClaims{

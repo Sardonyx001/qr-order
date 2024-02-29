@@ -1,8 +1,8 @@
 package middlewares
 
 import (
-	"backend/config"
 	"backend/stores"
+	"backend/utils"
 	"net/http"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -25,7 +25,7 @@ func (m *AuthMiddleware) RestaurantAccess() echo.MiddlewareFunc {
 			restaurant_id := c.Param("restaurant_id")
 
 			token := c.Get("user").(*jwt.Token)
-			claims := token.Claims.(*config.JwtCustomClaims)
+			claims := token.Claims.(*utils.JwtCustomClaims)
 
 			user, err := m.store.User.GetById(claims.ID)
 			if err != nil {
