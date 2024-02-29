@@ -1,9 +1,9 @@
 package services
 
 import (
-	"backend/config"
 	"backend/models"
 	"backend/stores"
+	"backend/utils"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -12,7 +12,7 @@ type (
 	UserService interface {
 		GetUserById(id string) (*models.User, error)
 		GetUserByUsername(username string) (*models.User, error)
-		CreateUser(creds *config.BasicAuth) (string, error)
+		CreateUser(creds *utils.BasicAuth) (string, error)
 		DeleteUser(id string) error
 	}
 
@@ -25,7 +25,7 @@ func NewUserSevice(stores *stores.Stores) *userService {
 	return &userService{stores: stores}
 }
 
-func (s *userService) CreateUser(creds *config.BasicAuth) (string, error) {
+func (s *userService) CreateUser(creds *utils.BasicAuth) (string, error) {
 	encryptedPassword, err := bcrypt.GenerateFromPassword(
 		[]byte(creds.Password),
 		bcrypt.DefaultCost,

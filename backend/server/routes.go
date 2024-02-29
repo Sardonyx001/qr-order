@@ -1,11 +1,11 @@
 package server
 
 import (
-	"backend/config"
 	"backend/middlewares"
 	"backend/server/handlers"
 	"backend/services"
 	"backend/stores"
+	"backend/utils"
 	"net/http"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -30,7 +30,7 @@ func ConfigureRoutes(server *Server) {
 	g := server.Echo.Group("api/v1")
 	jwtConfig := echojwt.Config{
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {
-			return new(config.JwtCustomClaims)
+			return new(utils.JwtCustomClaims)
 		},
 		SigningKey: []byte(server.Config.Auth.AccessSecret),
 	}

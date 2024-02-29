@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"backend/config"
 	"backend/services"
 	"backend/utils"
 	"net/http"
@@ -33,7 +32,7 @@ func (h *userHandler) GetUserById(c echo.Context) error {
 }
 
 func (h *userHandler) CreateUser(c echo.Context) error {
-	userAuth := new(config.BasicAuth)
+	userAuth := new(utils.BasicAuth)
 
 	if err := c.Bind(userAuth); err != nil {
 		return c.JSON(http.StatusBadRequest, "Request doesn't match schema")
