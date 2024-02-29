@@ -11,6 +11,7 @@ type (
 	AdminStore interface {
 		Create(admin *models.Admin) (string, error)
 		GetById(id string) (*models.Admin, error)
+		GetDefaultAdmin(defaultAdmin *models.Admin) error
 		GetByUsername(username string) (*models.Admin, error)
 		DeleteById(id string) error
 	}
@@ -54,6 +55,10 @@ func (s *adminStore) GetByUsername(username string) (*models.Admin, error) {
 	}
 
 	return &admin, nil
+}
+
+func (s *adminStore) GetDefaultAdmin(defaultAdmin *models.Admin) error {
+	return s.DB.First(&defaultAdmin).Error
 }
 
 func (s *adminStore) DeleteById(id string) error {

@@ -21,7 +21,7 @@ type (
 )
 
 func (s *categoryStore) Create(category *models.Category) error {
-	return s.DB.Create(category).Error
+    return s.DB.Create(category).Error
 }
 
 func (s *categoryStore) GetById(id string) (*models.Category, error) {

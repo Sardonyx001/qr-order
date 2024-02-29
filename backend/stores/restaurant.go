@@ -10,7 +10,9 @@ import (
 type (
 	RestaurantStore interface {
 		Create(restaurant *models.Restaurant) (string, error)
+		Update(restaurant *models.Restaurant) (string, error)
 		GetById(id string) (*models.Restaurant, error)
+		CreateWithItems(restaurant *models.Restaurant, items *[]models.Item) (string, error)
 		DeleteById(id string) error
 	}
 
@@ -21,6 +23,16 @@ type (
 
 func (s *restaurantStore) Create(restaurant *models.Restaurant) (string, error) {
 	err := s.DB.Create(&restaurant).Error
+	if err != nil {
+		log.Error("failed to create restaurant: ", err)
+		return "", err
+	}
+
+	return restaurant.ID, nil
+}
+
+func (s *restaurantStore) Update(restaurant *models.Restaurant) (string, error) {
+	err := s.DB.Save(&restaurant).Error
 	if err != nil {
 		log.Error("failed to create restaurant: ", err)
 		return "", err
@@ -43,7 +55,7 @@ func (s *restaurantStore) CreateWithItems(restaurant *models.Restaurant, items *
 func (s *restaurantStore) GetById(id string) (*models.Restaurant, error) {
 	var restaurant models.Restaurant
 
-	err := s.DB.Where("id = ? ", id).Take(&restaurant).Error
+	err := s.DB.Preload("Users").Where("id = ? ", id).First(&restaurant).Error
 
 	if err != nil {
 		log.Error("can't find restaurant: ", err)

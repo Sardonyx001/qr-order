@@ -1,13 +1,26 @@
 package services
 
-import "backend/stores"
+import (
+	"backend/config"
+	"backend/stores"
+)
 
 type Services struct {
-	User UserService
+	Auth       AuthService
+	User       UserService
+	Admin      AdminService
+	Restaurant RestaurantService
+	Item       ItemService
+	Category   CategoryService
 }
 
-func New(stores *stores.Stores) *Services {
+func New(stores *stores.Stores, config *config.Config) *Services {
 	return &Services{
-		User: &userService{stores: stores},
+		Auth:       &authService{Stores: stores, Config: config},
+		User:       &userService{stores: stores},
+		Admin:      &adminService{stores: stores},
+		Restaurant: &restaurantService{stores: stores},
+		Item:       &itemService{stores: stores},
+		Category:   &categoryService{stores: stores},
 	}
 }
