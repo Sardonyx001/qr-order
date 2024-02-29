@@ -2,18 +2,15 @@ package services
 
 import (
 	"backend/config"
-	"backend/models"
 	"backend/stores"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type (
 	AuthService interface {
-		GenerateAccessToken(username string, password string, admin bool) (accessToken string, exp int64, err error)
-		GetUserById(id string) *models.User
+		GenerateAccessToken(id string, admin bool) (accessToken string, exp int64, err error)
 	}
 
 	authService struct {
@@ -22,17 +19,11 @@ type (
 	}
 )
 
-func (s *authService) GenerateAccessToken(username string, password string, admin bool) (accessToken string, exp int64, err error) {
-
-	user, err := s.User.GetByUsername(username)
-	if err != nil || (bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)) != nil) {
-		return "", 0, err
-	}
-
+func (s *authService) GenerateAccessToken(id string, admin bool) (accessToken string, exp int64, err error) {
 	expired := time.Now().Add(time.Hour * 72)
 
 	claims := &config.JwtCustomClaims{
-		ID:    user.ID,
+		ID:    id,
 		Admin: admin,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expired),
@@ -48,12 +39,4 @@ func (s *authService) GenerateAccessToken(username string, password string, admi
 	}
 
 	return accessToken, exp, err
-}
-
-func (s *authService) GetUserById(id string) *models.User {
-	user, err := s.User.GetById(id)
-	if err != nil {
-		return nil
-	}
-	return user
 }

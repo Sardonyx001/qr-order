@@ -21,6 +21,10 @@ type (
 	}
 )
 
+func NewUserSevice(stores *stores.Stores) *userService {
+	return &userService{stores: stores}
+}
+
 func (s *userService) CreateUser(creds *config.BasicAuth) (string, error) {
 	encryptedPassword, err := bcrypt.GenerateFromPassword(
 		[]byte(creds.Password),

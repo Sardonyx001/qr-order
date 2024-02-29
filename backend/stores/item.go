@@ -11,6 +11,7 @@ type (
 	ItemStore interface {
 		Create(item *models.Item) (string, error)
 		Update(item *models.Item) (string, error)
+		GetAll() ([]models.Item, error)
 		GetById(id string) (*models.Item, error)
 		DeleteById(id string) error
 	}
@@ -44,6 +45,17 @@ func (s *itemStore) GetById(id string) (*models.Item, error) {
 		return nil, result.Error
 	}
 	return &item, nil
+}
+
+func (s *itemStore) GetAll() ([]models.Item, error) {
+	var items []models.Item
+
+	result := s.DB.Preload("Restaurants").Preload("Categories").Find(items)
+	if result.Error != nil {
+		log.Error("Can't find items: ", result.Error)
+		return nil, result.Error
+	}
+	return items, nil
 }
 
 func (s *itemStore) DeleteById(id string) error {

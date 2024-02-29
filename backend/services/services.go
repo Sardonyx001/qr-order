@@ -10,6 +10,8 @@ type Services struct {
 	User       UserService
 	Admin      AdminService
 	Restaurant RestaurantService
+	Item       ItemService
+	Category   CategoryService
 }
 
 func New(stores *stores.Stores, config *config.Config) *Services {
@@ -18,5 +20,7 @@ func New(stores *stores.Stores, config *config.Config) *Services {
 		User:       &userService{stores: stores},
 		Admin:      &adminService{stores: stores},
 		Restaurant: &restaurantService{stores: stores},
+		Item:       &itemService{stores: stores},
+		Category:   &categoryService{stores: stores},
 	}
 }
