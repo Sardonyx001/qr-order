@@ -1,9 +1,9 @@
 package services
 
 import (
-	"backend/config"
 	"backend/models"
 	"backend/stores"
+	"backend/utils"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -12,7 +12,7 @@ type (
 	UserService interface {
 		GetUserById(id string) (*models.User, error)
 		GetUserByUsername(username string) (*models.User, error)
-		CreateUser(creds *config.BasicAuth) (string, error)
+		CreateUser(creds *utils.BasicAuth) (string, error)
 		DeleteUser(id string) error
 	}
 
@@ -25,7 +25,7 @@ func NewUserSevice(stores *stores.Stores) *userService {
 	return &userService{stores: stores}
 }
 
-func (s *userService) CreateUser(creds *config.BasicAuth) (string, error) {
+func (s *userService) CreateUser(creds *utils.BasicAuth) (string, error) {
 	encryptedPassword, err := bcrypt.GenerateFromPassword(
 		[]byte(creds.Password),
 		bcrypt.DefaultCost,
@@ -43,8 +43,6 @@ func (s *userService) CreateUser(creds *config.BasicAuth) (string, error) {
 		PasswordHash: string(encryptedPassword),
 		Admin:        defaultAdmin,
 	}
-	user.PasswordHash = string(encryptedPassword)
-	user.Username = creds.Username
 
 	userId, err := s.stores.User.Create(&user)
 	return userId, err
@@ -57,9 +55,7 @@ func (s *userService) GetUserById(id string) (*models.User, error) {
 }
 
 func (s *userService) GetUserByUsername(username string) (*models.User, error) {
-	var user *models.User
-	user, err := s.stores.User.GetByUsername(username)
-	return user, err
+	return s.stores.User.GetByUsername(username)
 }
 
 func (s *userService) DeleteUser(id string) error {
