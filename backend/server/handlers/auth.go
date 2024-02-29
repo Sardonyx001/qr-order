@@ -2,24 +2,25 @@ package handlers
 
 import (
 	"backend/config"
-	"backend/models"
+	"backend/logger"
 	"backend/services"
 	"net/http"
 
-	"github.com/golang-jwt/jwt/v4"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
+	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type (
 	AuthHandler interface {
 		LoginForUser(c echo.Context) error
 		LoginForAdmin(c echo.Context) error
-		GetUserById(id string) *models.User
 	}
 
 	authHandler struct {
 		services.AuthService
+		services.UserService
+		services.AdminService
 	}
 )
 
@@ -34,9 +35,14 @@ func (h *authHandler) LoginForUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "Required fields are empty or not valid")
 	}
 
-	accessToken, _, err := h.AuthService.GenerateAccessToken(userAuth.Username, userAuth.Password, false)
+	user, err := h.UserService.GetUserByUsername(userAuth.Username)
+	if err != nil || (bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(userAuth.Password)) != nil) {
+		return c.JSON(http.StatusUnauthorized, "Invalid credentials")
+	}
+
+	accessToken, _, err := h.AuthService.GenerateAccessToken(user.ID, false)
 	if err != nil {
-		log.Error("Failed to authenticate: ", err)
+		logger.Error("Failed to authenticate: ", zap.Error(err))
 		return c.JSON(http.StatusUnauthorized, "Invalid credentials")
 	}
 
@@ -56,19 +62,18 @@ func (h *authHandler) LoginForAdmin(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "Required fields are empty or not valid")
 	}
 
-	accessToken, _, err := h.AuthService.GenerateAccessToken(userAuth.Username, userAuth.Password, true)
+	admin, err := h.AdminService.GetAdminByUsername(userAuth.Username)
+	if err != nil || (bcrypt.CompareHashAndPassword([]byte(admin.PasswordHash), []byte(userAuth.Password)) != nil) {
+		return c.JSON(http.StatusUnauthorized, "Invalid credentials")
+	}
+
+	accessToken, _, err := h.AuthService.GenerateAccessToken(admin.ID, true)
 	if err != nil {
-		log.Error("Failed to authenticate: ", err)
+		logger.Error("Failed to authenticate: ", zap.Error(err))
 		return c.JSON(http.StatusUnauthorized, "Invalid credentials")
 	}
 
 	return c.JSON(http.StatusOK, map[string]string{
 		"token": accessToken,
 	})
-}
-
-func (h *authHandler) GetUserFromToken(c echo.Context) *models.User {
-	token := c.Get("user").(*jwt.Token)
-	claims := token.Claims.(*config.JwtCustomClaims)
-	return h.AuthService.GetUserById(claims.ID)
 }
