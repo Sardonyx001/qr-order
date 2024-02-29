@@ -20,9 +20,9 @@ func New(s *services.Services) *Handlers {
 			s.User,
 			s.Admin},
 		RestaurantHandler: &restaurantHandler{
-			r: s.Restaurant,
-			u: s.User,
-			c: s.Category},
+			s.Restaurant,
+			s.User,
+			s.Category},
 		CategoryHandler: &categoryHandler{s.Category},
 		ItemHandler:     &itemHandler{s.Item},
 	}

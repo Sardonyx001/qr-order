@@ -22,16 +22,16 @@ type (
 	}
 
 	restaurantHandler struct {
-		r services.RestaurantService
-		u services.UserService
-		c services.CategoryService
+		services.RestaurantService
+		services.UserService
+		services.CategoryService
 	}
 )
 
 func (h *restaurantHandler) GetRestaurants(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
 	claims := token.Claims.(*config.JwtCustomClaims)
-	user, err := h.u.GetUserById(claims.ID)
+	user, err := h.UserService.GetUserById(claims.ID)
 	if err != nil {
 		logger.Error(err.Error())
 		return c.JSON(http.StatusForbidden, "Invalid credentials")
@@ -43,7 +43,7 @@ func (h *restaurantHandler) GetRestaurants(c echo.Context) error {
 func (h *restaurantHandler) GetRestaurantById(c echo.Context) error {
 	restaurant_id := c.Param("restaurant_id")
 
-	restaurant, err := h.r.GetRestaurantById(restaurant_id)
+	restaurant, err := h.RestaurantService.GetRestaurantById(restaurant_id)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (h *restaurantHandler) GetRestaurantById(c echo.Context) error {
 func (h *restaurantHandler) CreateRestaurant(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
 	claims := token.Claims.(*config.JwtCustomClaims)
-	user, err := h.u.GetUserById(claims.ID)
+	user, err := h.UserService.GetUserById(claims.ID)
 	if err != nil {
 		return c.JSON(http.StatusForbidden, "Invalid credentials")
 	}
@@ -67,7 +67,7 @@ func (h *restaurantHandler) CreateRestaurant(c echo.Context) error {
 	restaurant.Users = append(restaurant.Users, user)
 	user.Restaurants = append(user.Restaurants, restaurant)
 
-	createdRestaurant, err := h.r.CreateRestaurant(restaurant)
+	createdRestaurant, err := h.RestaurantService.CreateRestaurant(restaurant)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "Something went wrong")
 	}
@@ -84,13 +84,13 @@ func (h *restaurantHandler) UpdateRestaurantName(c echo.Context) error {
 	}
 
 	var restaurant *models.Restaurant
-	restaurant, err := h.r.GetRestaurantById(restaurant_id)
+	restaurant, err := h.RestaurantService.GetRestaurantById(restaurant_id)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, "Restaurant not found")
 	}
 	restaurant.Name = modifiedRestaurant.Name
 
-	updatedRestaurant, err := h.r.UpdateRestaurant(restaurant)
+	updatedRestaurant, err := h.RestaurantService.UpdateRestaurant(restaurant)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "Something went wrong")
 	}
@@ -101,7 +101,7 @@ func (h *restaurantHandler) UpdateRestaurantName(c echo.Context) error {
 func (h *restaurantHandler) DeleteRestaurant(c echo.Context) (err error) {
 	restaurant_id := c.Param("id")
 
-	err = h.r.DeleteRestaurant(restaurant_id)
+	err = h.RestaurantService.DeleteRestaurant(restaurant_id)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, utils.Error{Message: "ID is Invalid"})
 	}
