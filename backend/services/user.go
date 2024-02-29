@@ -21,6 +21,10 @@ type (
 	}
 )
 
+func NewUserSevice(stores *stores.Stores) *userService {
+	return &userService{stores: stores}
+}
+
 func (s *userService) CreateUser(creds *config.BasicAuth) (string, error) {
 	encryptedPassword, err := bcrypt.GenerateFromPassword(
 		[]byte(creds.Password),
@@ -30,10 +34,8 @@ func (s *userService) CreateUser(creds *config.BasicAuth) (string, error) {
 		return "", err
 	}
 	defaultAdmin := models.Admin{}
-	result := s.stores.DB.First(&defaultAdmin)
-
-	if result.Error != nil {
-		return "", result.Error
+	if err = s.stores.Admin.GetDefaultAdmin(&defaultAdmin); err != nil {
+		return "", err
 	}
 
 	user := models.User{

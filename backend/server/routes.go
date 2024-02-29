@@ -1,19 +1,24 @@
 package server
 
 import (
+	"backend/config"
+	"backend/middlewares"
 	"backend/server/handlers"
 	"backend/services"
 	"backend/stores"
 	"net/http"
 
+	"github.com/golang-jwt/jwt/v4"
+	echojwt "github.com/labstack/echo-jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func ConfigureRoutes(server *Server) {
 	stores := stores.New(server.DB)
-	services := services.New(stores)
+	services := services.New(stores, server.Config)
 	handlers := handlers.New(services)
+	authMiddlware := middlewares.NewAuthMw(stores) // WORKSSSSS
 
 	server.Echo.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: "[${time_rfc3339}] ${status} ${method} ${path} (${remote_ip}) ${latency_human}\n",
@@ -23,56 +28,77 @@ func ConfigureRoutes(server *Server) {
 	server.Echo.Pre(middleware.RemoveTrailingSlash())
 
 	g := server.Echo.Group("api/v1")
+	jwtConfig := echojwt.Config{
+		NewClaimsFunc: func(c echo.Context) jwt.Claims {
+			return new(config.JwtCustomClaims)
+		},
+		SigningKey: []byte(server.Config.Auth.AccessSecret),
+	}
 
 	// Admin Endpoints
-	// TODO: Configure auth middleware
 	admin := g.Group("/admin")
 	admin.POST("/register", handlers.AdminHandler.CreateAdmin)
+	admin.POST("/login", handlers.AuthHandler.LoginForAdmin)
+	admin.Use(echojwt.WithConfig(jwtConfig))
 
 	// User Endpoints
-	// TODO: Configure auth middleware
 	users := g.Group("/users")
 	users.POST("/register", handlers.UserHandler.CreateUser)
-	users.POST("/login", todo)
-	users.POST("/refresh", todo)
+	users.POST("/login", handlers.AuthHandler.LoginForUser)
 
+	users.Use(echojwt.WithConfig(jwtConfig))
 	users.GET("/:id", handlers.UserHandler.GetUserById)
 	users.PUT("/:id", handlers.UserHandler.UpdateUserById)
 	users.DELETE("/:id", handlers.UserHandler.DeleteUserById)
 
-	restaurants := g.Group("/restaurants/:restaurant_id")
-	restaurants.GET("", todo)
-	restaurants.GET("/orders", todo)
-	restaurants.GET("/orders/:order_id", todo)
-	restaurants.POST("/orders/:order_id", todo)
-	restaurants.PUT("/orders/:order_id", todo)
-	restaurants.DELETE("/orders/:order_id", todo)
+	// Restaurant Endpoints
+	restaurants := g.Group("/restaurants")
+	restaurants.Use(echojwt.WithConfig(jwtConfig))
+	restaurants.GET("", handlers.RestaurantHandler.GetRestaurants)
+	restaurants.POST("", handlers.RestaurantHandler.CreateRestaurant)
+
+	restaurants.Use(authMiddlware.RestaurantAccess())
+	restaurants.GET("/:restaurant_id", handlers.RestaurantHandler.GetRestaurantById)
+	restaurants.PUT("/:restaurant_id", handlers.RestaurantHandler.UpdateRestaurantName)
+
+	// restaurant/:restaurant_id/orders CRUD
+	orders := restaurants.Group("/:restaurant_id/orders")
+	orders.GET("", todo)
+	orders.POST("", todo)
+	orders.GET("/:order_id", todo)
+	orders.PUT("/:order_id", todo)
+	orders.DELETE("/:order_id", todo)
 
 	// restaurant/:restaurant_id/categories CRUD
-	restaurants.GET("/categories", todo)
-	restaurants.GET("/categories/:category_id", todo)
-	restaurants.POST("/categories/:category_id", todo)
-	restaurants.PUT("/categories/:category_id", todo)
-	restaurants.DELETE("/categories/:category_id", todo)
+	categories := restaurants.Group("/:restaurant_id/categories")
+	categories.GET("", todo)
+	categories.POST("", todo)
+	categories.GET("/:category_id", todo)
+	categories.PUT("/:category_id", todo)
+	categories.DELETE("/:category_id", todo)
 
 	// restaurant/:restaurant_id/items CRUD
-	restaurants.GET("/items", todo)
-	restaurants.POST("/items", todo)
-	restaurants.GET("/items/:item_id", todo)
-	restaurants.PUT("/items/:item_id", todo)
-	restaurants.DELETE("/items/:item_id", todo)
+	items := restaurants.Group("/:restaurant_id/items")
+	items.GET("", handlers.ItemHandler.GetItems)
+	items.POST("", handlers.ItemHandler.CreateItem)
+	items.GET("/:item_id", handlers.ItemHandler.GetItemById)
+	items.PUT("/:item_id", handlers.ItemHandler.UpdateItemById)
+	items.DELETE("/:item_id", handlers.ItemHandler.DeleteItemById)
 
 	// restaurant/:restaurant_id/tables CRUD
-	restaurants.GET("/tables", todo)
-	restaurants.POST("/tables", todo)
-	restaurants.GET("/tables/:table_id", todo)
-	restaurants.PUT("/tables/:table_id", todo)
-	restaurants.DELETE("/tables/:table_id", todo)
+	tables := restaurants.Group("/:restaurant_id/tables")
+	tables.GET("", todo)
+	tables.POST("", todo)
+	tables.GET("/:table_id", todo)
+	tables.PUT("/:table_id", todo)
+	tables.DELETE("/:table_id", todo)
 
 	// Customer Endpoints
-	// TODO: Configure auth middleware
 	customers := g.Group("/customers")
+	customers.Use(echojwt.WithConfig(jwtConfig))
+
 	customers.GET("", todo)
+	customers.POST("", todo)
 	customers.GET("/:customer_id/orders", todo)
 	customers.POST("/:customer_id/orders", todo)
 }

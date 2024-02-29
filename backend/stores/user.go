@@ -33,7 +33,7 @@ func (s *userStore) Create(user *models.User) (string, error) {
 func (s *userStore) GetById(id string) (*models.User, error) {
 	var user models.User
 
-	err := s.DB.Where("id = ? ", id).Take(&user).Error
+	err := s.DB.Preload("Restaurants").Where("id = ? ", id).First(&user).Error
 
 	if err != nil {
 		log.Error("can't find user: ", err)

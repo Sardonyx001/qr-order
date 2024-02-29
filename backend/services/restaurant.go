@@ -7,8 +7,9 @@ import (
 
 type (
 	RestaurantService interface {
-		// GetRestaurantById(id string) (*models.Restaurant, error)
+		GetRestaurantById(id string) (*models.Restaurant, error)
 		CreateRestaurant(r *models.Restaurant) (string, error)
+		UpdateRestaurant(r *models.Restaurant) (string, error)
 		// CreateRestaurantWithItems(r *models.Restaurant, is *[]models.Item) (string, error)
 		DeleteRestaurant(id string) error
 	}
@@ -18,8 +19,16 @@ type (
 	}
 )
 
+func (s *restaurantService) GetRestaurantById(id string) (*models.Restaurant, error) {
+	return s.stores.Restaurant.GetById(id)
+}
+
 func (s *restaurantService) CreateRestaurant(restaurant *models.Restaurant) (string, error) {
 	restaurant_id, err := s.stores.Restaurant.Create(restaurant)
+	return restaurant_id, err
+}
+func (s *restaurantService) UpdateRestaurant(restaurant *models.Restaurant) (string, error) {
+	restaurant_id, err := s.stores.Restaurant.Update(restaurant)
 	return restaurant_id, err
 }
 
