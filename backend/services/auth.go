@@ -20,7 +20,7 @@ type (
 	}
 )
 
-func (s *authService) GenerateAccessToken(id string, admin bool) (accessToken string, exp int64, err error) {
+func (s *authService) GenerateAccessToken(id string, admin bool) (string, int64, error) {
 	expired := time.Now().Add(time.Hour * 72)
 
 	claims := &utils.JwtCustomClaims{
@@ -31,10 +31,10 @@ func (s *authService) GenerateAccessToken(id string, admin bool) (accessToken st
 		},
 	}
 
-	exp = expired.Unix()
+	exp := expired.Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	accessToken, err = token.SignedString([]byte(s.Auth.AccessSecret))
+	accessToken, err := token.SignedString([]byte(s.Auth.AccessSecret))
 	if err != nil {
 		return "", 0, err
 	}
