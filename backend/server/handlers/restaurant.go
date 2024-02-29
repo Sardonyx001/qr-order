@@ -30,7 +30,7 @@ type (
 func (h *restaurantHandler) GetRestaurants(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
 
-	claims := token.Claims.(*config.JwtCustomClaims)
+	claims := token.Claims.(*utils.JwtCustomClaims)
 	user, err := h.UserService.GetUserById(claims.ID)
 
 	if err != nil {
@@ -55,7 +55,7 @@ func (h *restaurantHandler) GetRestaurantById(c echo.Context) error {
 func (h *restaurantHandler) CreateRestaurant(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
 
-	claims := token.Claims.(*config.JwtCustomClaims)
+	claims := token.Claims.(*utils.JwtCustomClaims)
 	user, err := h.UserService.GetUserById(claims.ID)
 
 	if err != nil {
