@@ -31,9 +31,10 @@ func (s *adminService) CreateAdmin(creds *config.BasicAuth) (string, error) {
 		return "", err
 	}
 
-	admin := models.Admin{}
-	admin.PasswordHash = string(encryptedPassword)
-	admin.Username = creds.Username
+	admin := models.Admin{
+		PasswordHash: string(encryptedPassword),
+		Username:     creds.Username,
+	}
 
 	adminId, err := s.stores.Admin.Create(&admin)
 	return adminId, err
