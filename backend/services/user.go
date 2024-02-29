@@ -43,8 +43,6 @@ func (s *userService) CreateUser(creds *utils.BasicAuth) (string, error) {
 		PasswordHash: string(encryptedPassword),
 		Admin:        defaultAdmin,
 	}
-	user.PasswordHash = string(encryptedPassword)
-	user.Username = creds.Username
 
 	userId, err := s.stores.User.Create(&user)
 	return userId, err

@@ -39,5 +39,5 @@ func (s *authService) GenerateAccessToken(id string, admin bool) (string, int64,
 		return "", 0, err
 	}
 
-	return accessToken, exp, err
+	return accessToken, exp, nil
 }
