@@ -57,9 +57,7 @@ func (s *userService) GetUserById(id string) (*models.User, error) {
 }
 
 func (s *userService) GetUserByUsername(username string) (*models.User, error) {
-	var user *models.User
-	user, err := s.stores.User.GetByUsername(username)
-	return user, err
+	return s.stores.User.GetByUsername(username)
 }
 
 func (s *userService) DeleteUser(id string) error {
