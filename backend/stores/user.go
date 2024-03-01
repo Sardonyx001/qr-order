@@ -57,5 +57,5 @@ func (s *userStore) GetByUsername(username string) (*models.User, error) {
 }
 
 func (s *userStore) DeleteById(id string) error {
-	return s.DB.Delete(&models.User{}, id).Error
+	return s.DB.Delete(&models.User{}, "id = ?", id).Error
 }
