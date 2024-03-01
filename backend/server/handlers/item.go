@@ -19,6 +19,8 @@ type (
 
 	itemHandler struct {
 		services.ItemService
+		services.CategoryService
+		services.RestaurantService
 	}
 )
 
@@ -33,7 +35,8 @@ func (h *itemHandler) GetItems(c echo.Context) error {
 
 func (h *itemHandler) GetItemById(c echo.Context) error {
 	itemID := c.Param("item_id")
-
+	logger := c.Logger()
+	logger.Info(itemID)
 	item, err := h.ItemService.GetItemById(itemID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -43,7 +46,7 @@ func (h *itemHandler) GetItemById(c echo.Context) error {
 }
 
 func (h *itemHandler) CreateItem(c echo.Context) error {
-	item := new(models.Item)
+	item := &models.Item{}
 	if err := c.Bind(item); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
@@ -79,5 +82,5 @@ func (h *itemHandler) DeleteItemById(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.NoContent(http.StatusNoContent)
+	return c.JSON(http.StatusOK, "Record deletion succeeded")
 }

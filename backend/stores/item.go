@@ -39,7 +39,7 @@ func (s *itemStore) Update(item *models.Item) (string, error) {
 
 func (s *itemStore) GetById(id string) (*models.Item, error) {
 	var item models.Item
-	result := s.DB.Preload("Restaurants").Preload("Categories").First(&item, id)
+	result := s.DB.First(&item, "id = ?", id)
 	if result.Error != nil {
 		log.Error("can't find item: ", result.Error)
 		return nil, result.Error
@@ -50,7 +50,7 @@ func (s *itemStore) GetById(id string) (*models.Item, error) {
 func (s *itemStore) GetAll() ([]models.Item, error) {
 	var items []models.Item
 
-	result := s.DB.Preload("Restaurants").Preload("Categories").Find(items)
+	result := s.DB.Find(&items)
 	if result.Error != nil {
 		log.Error("Can't find items: ", result.Error)
 		return nil, result.Error
@@ -59,5 +59,5 @@ func (s *itemStore) GetAll() ([]models.Item, error) {
 }
 
 func (s *itemStore) DeleteById(id string) error {
-	return s.DB.Delete(&models.Item{}, id).Error
+	return s.DB.Delete(&models.Item{}, "id = ?", id).Error
 }

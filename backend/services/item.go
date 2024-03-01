@@ -9,8 +9,8 @@ type (
 	ItemService interface {
 		GetItemById(id string) (*models.Item, error)
 		GetItems() ([]models.Item, error)
-		CreateItem(r *models.Item) (string, error)
-		UpdateItem(r *models.Item, id string) (string, error)
+		CreateItem(item *models.Item) (string, error)
+		UpdateItem(item *models.Item, id string) (string, error)
 		DeleteItem(id string) error
 	}
 
@@ -38,7 +38,9 @@ func (s *itemService) UpdateItem(item *models.Item, id string) (string, error) {
 	}
 	oldItem.Name = item.Name
 	oldItem.Options = item.Options
-	oldItem.Name = item.Name
+	oldItem.Price = item.Price
+	oldItem.Img = item.Img
+	oldItem.Text = item.Text
 
 	item_id, err := s.stores.Item.Update(oldItem)
 	return item_id, err
