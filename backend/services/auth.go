@@ -11,7 +11,7 @@ import (
 
 type (
 	AuthService interface {
-		GenerateAccessToken(id string, admin bool) (accessToken string, exp int64, err error)
+		GenerateAccessToken(id string, admin bool, ttl int64) (accessToken string, exp int64, err error)
 	}
 
 	authService struct {
@@ -20,8 +20,8 @@ type (
 	}
 )
 
-func (s *authService) GenerateAccessToken(id string, admin bool) (string, int64, error) {
-	expired := time.Now().Add(time.Hour * 72)
+func (s *authService) GenerateAccessToken(id string, admin bool, ttl int64) (string, int64, error) {
+	expired := time.Now().Add(time.Hour * time.Duration(ttl))
 
 	claims := &utils.JwtCustomClaims{
 		ID:    id,

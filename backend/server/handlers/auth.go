@@ -40,7 +40,7 @@ func (h *authHandler) LoginForUser(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, "Invalid credentials")
 	}
 
-	accessToken, _, err := h.AuthService.GenerateAccessToken(user.ID, false)
+	accessToken, _, err := h.AuthService.GenerateAccessToken(user.ID, false, 72)
 	if err != nil {
 		logger.Error("Failed to authenticate: ", zap.Error(err))
 		return c.JSON(http.StatusUnauthorized, "Invalid credentials")
@@ -67,7 +67,21 @@ func (h *authHandler) LoginForAdmin(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, "Invalid credentials")
 	}
 
-	accessToken, _, err := h.AuthService.GenerateAccessToken(admin.ID, true)
+	accessToken, _, err := h.AuthService.GenerateAccessToken(admin.ID, true, 72)
+	if err != nil {
+		logger.Error("Failed to authenticate: ", zap.Error(err))
+		return c.JSON(http.StatusUnauthorized, "Invalid credentials")
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"token": accessToken,
+	})
+}
+
+func (h *authHandler) GenerateTokenForCustomer(c echo.Context) error {
+	userID := c.Get("userID").(string)
+
+	accessToken, _, err := h.AuthService.GenerateAccessToken(userID, true, 2)
 	if err != nil {
 		logger.Error("Failed to authenticate: ", zap.Error(err))
 		return c.JSON(http.StatusUnauthorized, "Invalid credentials")
