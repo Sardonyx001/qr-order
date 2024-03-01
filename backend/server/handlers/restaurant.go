@@ -16,8 +16,10 @@ type (
 		GetRestaurants(c echo.Context) error
 		GetRestaurantById(c echo.Context) error
 		CreateRestaurant(c echo.Context) error
-		UpdateRestaurantName(c echo.Context) error
+		UpdateRestaurant(c echo.Context) error
 		DeleteRestaurant(c echo.Context) error
+
+		GetRestaurantCategories(c echo.Context) error
 	}
 
 	restaurantHandler struct {
@@ -46,7 +48,7 @@ func (h *restaurantHandler) GetRestaurantById(c echo.Context) error {
 
 	restaurant, err := h.RestaurantService.GetRestaurantById(restaurant_id)
 	if err != nil {
-		return err
+		return c.JSON(http.StatusNotFound, "No restaurant for this id")
 	}
 
 	return c.JSON(http.StatusOK, restaurant)
@@ -78,7 +80,7 @@ func (h *restaurantHandler) CreateRestaurant(c echo.Context) error {
 	return c.JSON(http.StatusCreated, createdRestaurant)
 }
 
-func (h *restaurantHandler) UpdateRestaurantName(c echo.Context) error {
+func (h *restaurantHandler) UpdateRestaurant(c echo.Context) error {
 	restaurant_id := c.Param("restaurant_id")
 
 	modifiedRestaurant := &models.Restaurant{}
@@ -102,11 +104,23 @@ func (h *restaurantHandler) UpdateRestaurantName(c echo.Context) error {
 }
 
 func (h *restaurantHandler) DeleteRestaurant(c echo.Context) (err error) {
-	restaurant_id := c.Param("id")
+	restaurant_id := c.Param("restaurat_id")
 
 	err = h.RestaurantService.DeleteRestaurant(restaurant_id)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, utils.Error{Message: "ID is Invalid"})
 	}
-	return err
+	return c.JSON(http.StatusOK, "Deleted restaurant successfully")
+}
+
+func (h *restaurantHandler) GetRestaurantCategories(c echo.Context) error {
+	restaurant_id := c.Param("restaurant_id")
+	restaurant, err := h.RestaurantService.GetRestaurantById(restaurant_id)
+	if err != nil {
+		logger.Error(err.Error())
+		return c.JSON(http.StatusNotFound, "No restaurant for this id")
+	}
+
+	return c.JSON(http.StatusOK, restaurant.Categories)
+
 }

@@ -9,6 +9,10 @@ type Stores struct {
 	Restaurant RestaurantStore
 	Item       ItemStore
 	Category   CategoryStore
+	Table      TableStore
+	Order      OrderStore
+	OrderItem  OrderItemStore
+	Customer   CustomerStore
 }
 
 func New(db *gorm.DB) *Stores {
@@ -19,5 +23,9 @@ func New(db *gorm.DB) *Stores {
 		Restaurant: &restaurantStore{db},
 		Item:       &itemStore{db},
 		Category:   &categoryStore{db},
+		Table:      &tableStore{db},
+		Order:      &orderStore{db},
+		OrderItem:  &orderItemStore{db},
+		Customer:   &customerStore{db},
 	}
 }

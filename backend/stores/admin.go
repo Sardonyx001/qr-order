@@ -62,5 +62,5 @@ func (s *adminStore) GetDefaultAdmin(defaultAdmin *models.Admin) error {
 }
 
 func (s *adminStore) DeleteById(id string) error {
-	return s.DB.Delete(&models.Admin{}, id).Error
+	return s.DB.Delete(&models.Admin{}, "id = ?", id).Error
 }

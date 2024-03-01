@@ -23,6 +23,7 @@ func (m *AuthMiddleware) RestaurantAccess() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			restaurant_id := c.Param("restaurant_id")
+			c.Set("restaurant_id", restaurant_id)
 
 			token := c.Get("user").(*jwt.Token)
 			claims := token.Claims.(*utils.JwtCustomClaims)
@@ -44,7 +45,8 @@ func (m *AuthMiddleware) RestaurantAccess() echo.MiddlewareFunc {
 			if !isOwner {
 				return echo.NewHTTPError(http.StatusUnauthorized, "Access Denied")
 			}
-
+			// Set UserID in context
+			c.Set("userID", user.ID)
 			return next(c)
 		}
 	}
