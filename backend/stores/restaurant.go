@@ -55,7 +55,7 @@ func (s *restaurantStore) CreateWithItems(restaurant *models.Restaurant, items *
 func (s *restaurantStore) GetById(id string) (*models.Restaurant, error) {
 	var restaurant models.Restaurant
 
-	err := s.DB.Preload("Users").Where("id = ? ", id).First(&restaurant).Error
+	err := s.DB.Preload("Users").Preload("Items").Preload("Categories").Where("id = ? ", id).First(&restaurant).Error
 
 	if err != nil {
 		log.Error("can't find restaurant: ", err)
@@ -66,5 +66,5 @@ func (s *restaurantStore) GetById(id string) (*models.Restaurant, error) {
 }
 
 func (s *restaurantStore) DeleteById(id string) error {
-	return s.DB.Delete(&models.Restaurant{}, id).Error
+	return s.DB.Delete(&models.Restaurant{}, "id = ?", id).Error
 }
