@@ -7,7 +7,9 @@ import (
 
 type (
 	CategoryService interface {
+		GetCategories() ([]models.Category, error)
 		GetCategoryById(id string) (*models.Category, error)
+		GetCategoryByName(name string) (*models.Category, error)
 		CreateCategory(category *models.Category) (string, error)
 		UpdateCategory(newCategory *models.Category, id string) (string, error)
 		DeleteCategory(id string) error
@@ -18,8 +20,16 @@ type (
 	}
 )
 
+func (s *categoryService) GetCategories() ([]models.Category, error) {
+	return s.stores.Category.GetAll()
+}
+
 func (s *categoryService) GetCategoryById(id string) (*models.Category, error) {
 	return s.stores.Category.GetById(id)
+}
+
+func (s *categoryService) GetCategoryByName(name string) (*models.Category, error) {
+	return s.stores.Category.GetByName(name)
 }
 
 func (s *categoryService) CreateCategory(category *models.Category) (string, error) {
